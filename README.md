@@ -63,11 +63,12 @@ yarn add puppeteer-core
 
 ### pdf
 
-The `pdf` method accept 3 arguments. the first argument is `puppeteer` browser object and the second one is path to HTML in the local file system and the last one is the puppeteer PDF options object. the method returns the byte array. if you specify a `path` in the options object the output PDF will be saved in that path.
+The `pdf` method accept 4 arguments. the first argument is `puppeteer` browser object, the second one is path to HTML in the local file system, the third is the puppeteer PDF options object and the last one is an options object for the report process. the method returns the byte array. if you specify a `path` in the options object the output PDF will be saved in that path.
 
 ```js
 import report from "puppeteer-report";
 import puppeteer from "puppeteer";
+import { BlendMode } from "pdf-lib";
 
 const browser = await puppeteer.launch({
   args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
@@ -84,6 +85,9 @@ try {
       left: "10mm",
       right: "10mm",
       top: "10mm",
+    },
+    {
+      blendMode: BlendMode.Normal,
     },
   });
 } finally {
@@ -125,6 +129,14 @@ try {
   await browser.close();
 }
 ```
+
+### Report options
+
+The PDF generation methods accepts a last argument (not required) to customize the report process. Here are the different options:
+
+| Property             | Type          | Default      | Description |
+|-------------------------------------------------------------------|
+| blendMode            | `BlendMode`   | `Multiply`   | The blend mode to use when merging header/footer and the page. Note that some printers do not handle `Multiply` correctly resulting in dithered rendering. |
 
 ## Custimoze HTML File
 

@@ -4,7 +4,8 @@ export async function createReport(
   baseDoc: PDFDocument,
   headersPdfBuffer: Uint8Array,
   headerHeight: number,
-  footerHeight: number
+  footerHeight: number,
+  blendMode: BlendMode,
 ) {
   const headerDoc = await PDFDocument.load(headersPdfBuffer);
 
@@ -70,7 +71,7 @@ export async function createReport(
         ...size,
         x: x - size.width,
         y: y - size.height,
-        blendMode: BlendMode.Multiply
+        blendMode: blendMode
       });
     }
 
@@ -79,7 +80,7 @@ export async function createReport(
         ...size,
         x: x - size.width,
         y: 0,
-        blendMode: BlendMode.Multiply
+        blendMode: blendMode
       });
     }
 
