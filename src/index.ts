@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as core from "./core";
 import type { Page, Browser, PDFOptions } from "./types";
+import { BlendMode } from "pdf-lib";
 
 /**
  * Convert HTML file to PDF
@@ -9,12 +10,12 @@ import type { Page, Browser, PDFOptions } from "./types";
  * @param options output PDF options
  * @returns PDF as an array of bytes
  */
-async function pdf(browser: Browser, file: string, options?: PDFOptions) {
+async function pdf(browser: Browser, file: string, options?: PDFOptions, reportOptions? : any) {
   const page = await browser.newPage();
   try {
     await page.goto("file:///" + file);
 
-    return await pdfPage(page, options);
+    return await pdfPage(page, options, reportOptions);
   } finally {
     await page.close();
   }
@@ -26,7 +27,7 @@ async function pdf(browser: Browser, file: string, options?: PDFOptions) {
  * @param options output PDF options
  * @returns PDF as an array of bytes
  */
-async function pdfPage(page: Page, options?: PDFOptions): Promise<Uint8Array> {
+async function pdfPage(page: Page, options?: PDFOptions, reportOptions? : any): Promise<Uint8Array> {
   const { path, ...pdfOptions } = options ?? {};
   const margin = {
     marginTop: pdfOptions?.margin?.top ?? 0,
@@ -49,6 +50,12 @@ async function pdfPage(page: Page, options?: PDFOptions): Promise<Uint8Array> {
     footerHeight
   );
   await page.evaluate(basePageEvalFunc, basePageEvalArg);
+
+  if (reportOptions?.destinationsHandler) {
+    const basePdfBuffer = await page.pdf(pdfOptions);
+    const destinations = await core.getDestinationsMap(new Uint8Array(basePdfBuffer));
+    await page.evaluate(reportOptions?.destinationsHandler, destinations);
+  }
 
   const basePdfBuffer = await page.pdf(pdfOptions);
 
@@ -78,7 +85,8 @@ async function pdfPage(page: Page, options?: PDFOptions): Promise<Uint8Array> {
     doc,
     headerPdfBuffer,
     headerHeight,
-    footerHeight
+    footerHeight,
+    reportOptions?.blendMode ?? BlendMode.Multiply,
   );
 
   if (path) {

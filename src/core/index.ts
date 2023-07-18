@@ -4,3 +4,4 @@ export {
   getHeadersEvaluator,
   getHeightEvaluator,
 } from "./evaluators";
+export { getDestinationsMap } from "./getDestinationsMap";

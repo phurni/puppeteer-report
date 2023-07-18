@@ -31,12 +31,19 @@ export function getHeightEvaluator(
 
         // change position to ignore margin collapse
         const position = element.style.position;
+        const left = element.style.left;
+        const right = element.style.right;
+
         element.style.position = "absolute";
+        element.style.left = "0";
+        element.style.right = "0";
 
         const height = element.offsetHeight + margin;
 
         // reset element position
         element.style.position = position;
+        element.style.left = left;
+        element.style.right = right;
 
         return Math.ceil(height * scale);
       }
