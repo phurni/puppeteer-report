@@ -59,6 +59,21 @@ async function pdfPage(page: Page, options?: PDFOptions): Promise<Uint8Array> {
 
   const headerPdfBuffer = await page.pdf(pdfOptions);
 
+  const metaData = await page.evaluate(() => {
+    return {
+      title:    (<HTMLElement>document.querySelector('head > title'))?.innerText,
+      author:   (<HTMLMetaElement>document.querySelector('head meta[name=author]'))?.content,
+      subject:  (<HTMLMetaElement>document.querySelector('head meta[name=subject]'))?.content,
+      keywords: (<HTMLMetaElement>document.querySelector('head meta[name=keywords]'))?.content?.split(','),
+    };
+  });
+  if (metaData) {
+    if (metaData.title)    doc.setTitle(metaData.title);
+    if (metaData.author)   doc.setAuthor(metaData.author);
+    if (metaData.subject)  doc.setSubject(metaData.subject);
+    if (metaData.keywords) doc.setKeywords(metaData.keywords);
+  }
+
   const result = await core.createReport(
     doc,
     headerPdfBuffer,
